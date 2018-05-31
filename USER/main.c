@@ -1,8 +1,8 @@
 #include "sys.h"
-#include "delay.h"
 #include "usart.h"
 #include "led.h"
 #include “beep.h"
+#include ”key.h"
  
  
 /************************************************
@@ -18,16 +18,34 @@
 
  int main(void)
  {	
+	vu8 key = 0;
 	delay_init();	    //延时函数初始化	  
 	LED_Init();		  	//初始化与LED连接的硬件接口
+	KEY_Init();         //init key's pin
+	BEEP_Init();        //init beep's pin
+	LED0 = 0;          //light the red led
 	while(1)
 	{
-		LED0=0;
-		BEEP = 0;
-		delay_ms(300);	 //延时300ms
-		LED0=1;
-		BEEP = 1;
-		delay_ms(300);	//延时300ms
+		key=KEY_Scan();    //receive the key's value
+		if(key)
+		{
+			swithch(key)
+			{
+				case WKUP_PRES:   //control the beep
+					BEEP = !BEEP;
+					break;
+				case KEY2_PRES:    //control LED0 turn around
+					LED0 = !LED0;
+					break;
+				case KEY1_PRES:   //control LED1 turn around
+					LED1 = !LED1;
+					break;
+				case KEY0_PRES:   //control LED0 and LED1 turn at the same time
+					LED0 = !LED0;
+					LED1 =!LED1;
+					break;
+			}
+		}else delay_ms(10);
 	}
  }
 
