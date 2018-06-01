@@ -42,7 +42,7 @@
 					break;
 				case KEY0_PRES:   //control LED0 and LED1 turn at the same time
 					LED0 = !LED0;
-					LED1 =!LED1;
+					LED1 = !LED1;
 					break;
 			}
 		}else delay_ms(10);
