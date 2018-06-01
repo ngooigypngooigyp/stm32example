@@ -18,34 +18,39 @@
 
  int main(void)
  {	
-	vu8 key = 0;
+	u16 t;
+	u16 len;
+	u16 times = 0;
 	delay_init();	    //延时函数初始化	  
+	NVIC_PriorityGoundConfig(NVIC_PriorityGroup_2);   //set nvic ground
+	uart_init(115200);
 	LED_Init();		  	//初始化与LED连接的硬件接口
 	KEY_Init();         //init key's pin
-	BEEP_Init();        //init beep's pin
-	LED0 = 0;          //light the red led
 	while(1)
 	{
-		key=KEY_Scan();    //receive the key's value
-		if(key)
+		if(USART_RX_STA & 0x8000)
 		{
-			swithch(key)
+                	len = USART_RX_STA & 0x3fff;
+			printd("\r\n你发送的消息为：\r\n\r\n");
+			for(t = 0;t<len; t++)
 			{
-				case WKUP_PRES:   //control the beep
-					BEEP = !BEEP;
-					break;
-				case KEY2_PRES:    //control LED0 turn around
-					LED0 = !LED0;
-					break;
-				case KEY1_PRES:   //control LED1 turn around
-					LED1 = !LED1;
-					break;
-				case KEY0_PRES:   //control LED0 and LED1 turn at the same time
-					LED0 = !LED0;
-					LED1 = !LED1;
-					break;
+				USART_SendData(USART1, USART_RX_BUF[t]);
+				while(USART_GetFlagStatus(USART1, USART_FLAG_TC) !=set);
 			}
-		}else delay_ms(10);
+			printf("\r\n\r\n");
+			USART_RX_STA = 0;
+		}else
+		{
+			times++;
+			if(times%5000 == 0)
+			{
+				printf("\r\n实验\r\n");
+				printf("正点原子\r\n\r\n");
+			}
+			if(times%200 == 0) printf("请输入数据，以回车键结束\n");
+			if(times%30 == 0) LED0 = !LED0;
+			delay_ms(10);
+		}
 	}
  }
 
